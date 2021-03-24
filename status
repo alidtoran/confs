@@ -1,0 +1,35 @@
+#!/bin/bash
+
+## Check battery
+BATTERY_STATUS=$(cat /sys/class/power_supply/BAT0/status)
+BATTERY_CAPACITY=$(cat /sys/class/power_supply/BAT0/capacity)
+
+if [[ $BATTERY_STATUS = "Discharging" && $BATTERY_CAPACITY -lt 15 ]]
+then
+  notify-send "Status" "Battery low" -u critical
+elif [[ $BATTERY_STATUS = "Charging" && $BATTERY_CAPACITY -gt 99 ]]
+then
+  notify-send "Status" "Battery full" -u normal
+fi
+
+## Check disk space
+HOME_SPACE_AVAILABE_PERCENT=$(df | grep 'evg-home' | awk '{ printf "%.f", 100*$4/$2 }')
+ROOT_SPACE_AVAILABE_PERCENT=$(df | grep 'evg-root' | awk '{ printf "%.f", 100*$4/$2 }')
+
+if [[ $HOME_SPACE_AVAILABE_PERCENT -lt 10 ]]
+then
+  notify-send "Status" "Low disk space on home" -u critical
+fi
+
+if [[ $ROOT_SPACE_AVAILABE_PERCENT -lt 10 ]]
+then
+  notify-send "Status" "Low disk space on root" -u critical
+fi
+
+## Check disk space
+RAM_SPACE_AVAILABE_PERCENT=$(free | grep Mem | awk '{ printf "%.f", $7*100/$2 }')
+
+if [[ $RAM_SPACE_AVAILABE_PERCENT -lt 10 ]]
+then
+  notify-send "Status" "Low RAM" -u critical
+fi
